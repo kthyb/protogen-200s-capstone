@@ -1,0 +1,86 @@
+[
+  {
+    "month": "2025-01",
+    "revenue": 42150,
+    "visitors": 18400,
+    "conversions": 2.8,
+    "orders": 515
+  },
+  {
+    "month": "2025-02",
+    "revenue": 43800,
+    "visitors": 19250,
+    "conversions": 2.6,
+    "orders": 505
+  },
+  {
+    "month": "2025-03",
+    "revenue": 45520,
+    "visitors": 20600,
+    "conversions": 2.9,
+    "orders": 585
+  },
+  {
+    "month": "2025-04",
+    "revenue": 49780,
+    "visitors": 22400,
+    "conversions": 3.1,
+    "orders": 650
+  },
+  {
+    "month": "2025-05",
+    "revenue": 53240,
+    "visitors": 24650,
+    "conversions": 3.3,
+    "orders": 735
+  },
+  {
+    "month": "2025-06",
+    "revenue": 56890,
+    "visitors": 27100,
+    "conversions": 3.0,
+    "orders": 790
+  },
+  {
+    "month": "2025-07",
+    "revenue": 60430,
+    "visitors": 28950,
+    "conversions": 3.4,
+    "orders": 930
+  },
+  {
+    "month": "2025-08",
+    "revenue": 59320,
+    "visitors": 28100,
+    "conversions": 3.2,
+    "orders": 865
+  },
+  {
+    "month": "2025-09",
+    "revenue": 62950,
+    "visitors": 25800,
+    "conversions": 3.7,
+    "orders": 955
+  },
+  {
+    "month": "2025-10",
+    "revenue": 66740,
+    "visitors": 23600,
+    "conversions": 3.9,
+    "orders": 920
+  },
+  {
+    "month": "2025-11",
+    "revenue": 72480,
+    "visitors": 22900,
+    "conversions": 4.2,
+    "orders": 965
+  },
+  {
+    "month": "2025-12",
+    "revenue": 78120,
+    "visitors": 24150,
+    "conversions": 4.0,
+    "orders": 940
+  }
+]
