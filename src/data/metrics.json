@@ -1,86 +1,230 @@
 [
   {
     "month": "2025-01",
-    "revenue": 42150,
-    "visitors": 18400,
-    "conversions": 2.8,
-    "orders": 515
+    "costPerShipment": 192.4,
+    "averageTransitTime": 4.7,
+    "orderToDeliveryTime": 6.2,
+    "shipmentVolume": 11420,
+    "onTimeDeliveryRate": 91.8,
+    "regionalPerformance": {
+      "northwest": { "avgTransportationTime": 5.3 },
+      "midwest": { "avgTransportationTime": 4.3 },
+      "south": { "avgTransportationTime": 4.8 },
+      "northeast": { "avgTransportationTime": 4.6 }
+    },
+    "openExceptions": {
+      "lateShipments": 452,
+      "damagedPackages": 114,
+      "customsHolds": 63
+    }
   },
   {
     "month": "2025-02",
-    "revenue": 43800,
-    "visitors": 19250,
-    "conversions": 2.6,
-    "orders": 505
+    "costPerShipment": 189.7,
+    "averageTransitTime": 4.6,
+    "orderToDeliveryTime": 6.0,
+    "shipmentVolume": 11790,
+    "onTimeDeliveryRate": 92.1,
+    "regionalPerformance": {
+      "northwest": { "avgTransportationTime": 5.1 },
+      "midwest": { "avgTransportationTime": 4.2 },
+      "south": { "avgTransportationTime": 4.7 },
+      "northeast": { "avgTransportationTime": 4.5 }
+    },
+    "openExceptions": {
+      "lateShipments": 431,
+      "damagedPackages": 107,
+      "customsHolds": 58
+    }
   },
   {
     "month": "2025-03",
-    "revenue": 45520,
-    "visitors": 20600,
-    "conversions": 2.9,
-    "orders": 585
+    "costPerShipment": 186.9,
+    "averageTransitTime": 4.4,
+    "orderToDeliveryTime": 5.8,
+    "shipmentVolume": 12140,
+    "onTimeDeliveryRate": 92.9,
+    "regionalPerformance": {
+      "northwest": { "avgTransportationTime": 4.9 },
+      "midwest": { "avgTransportationTime": 4.1 },
+      "south": { "avgTransportationTime": 4.5 },
+      "northeast": { "avgTransportationTime": 4.4 }
+    },
+    "openExceptions": {
+      "lateShipments": 404,
+      "damagedPackages": 102,
+      "customsHolds": 55
+    }
   },
   {
     "month": "2025-04",
-    "revenue": 49780,
-    "visitors": 22400,
-    "conversions": 3.1,
-    "orders": 650
+    "costPerShipment": 183.6,
+    "averageTransitTime": 4.2,
+    "orderToDeliveryTime": 5.6,
+    "shipmentVolume": 12610,
+    "onTimeDeliveryRate": 93.5,
+    "regionalPerformance": {
+      "northwest": { "avgTransportationTime": 4.7 },
+      "midwest": { "avgTransportationTime": 3.9 },
+      "south": { "avgTransportationTime": 4.3 },
+      "northeast": { "avgTransportationTime": 4.2 }
+    },
+    "openExceptions": {
+      "lateShipments": 378,
+      "damagedPackages": 95,
+      "customsHolds": 53
+    }
   },
   {
     "month": "2025-05",
-    "revenue": 53240,
-    "visitors": 24650,
-    "conversions": 3.3,
-    "orders": 735
+    "costPerShipment": 181.4,
+    "averageTransitTime": 4.1,
+    "orderToDeliveryTime": 5.5,
+    "shipmentVolume": 12980,
+    "onTimeDeliveryRate": 93.9,
+    "regionalPerformance": {
+      "northwest": { "avgTransportationTime": 4.6 },
+      "midwest": { "avgTransportationTime": 3.8 },
+      "south": { "avgTransportationTime": 4.1 },
+      "northeast": { "avgTransportationTime": 4.0 }
+    },
+    "openExceptions": {
+      "lateShipments": 362,
+      "damagedPackages": 91,
+      "customsHolds": 51
+    }
   },
   {
     "month": "2025-06",
-    "revenue": 56890,
-    "visitors": 27100,
-    "conversions": 3.0,
-    "orders": 790
+    "costPerShipment": 179.8,
+    "averageTransitTime": 3.9,
+    "orderToDeliveryTime": 5.3,
+    "shipmentVolume": 13320,
+    "onTimeDeliveryRate": 94.4,
+    "regionalPerformance": {
+      "northwest": { "avgTransportationTime": 4.4 },
+      "midwest": { "avgTransportationTime": 3.7 },
+      "south": { "avgTransportationTime": 3.9 },
+      "northeast": { "avgTransportationTime": 3.9 }
+    },
+    "openExceptions": {
+      "lateShipments": 341,
+      "damagedPackages": 88,
+      "customsHolds": 49
+    }
   },
   {
     "month": "2025-07",
-    "revenue": 60430,
-    "visitors": 28950,
-    "conversions": 3.4,
-    "orders": 930
+    "costPerShipment": 178.9,
+    "averageTransitTime": 3.8,
+    "orderToDeliveryTime": 5.2,
+    "shipmentVolume": 13680,
+    "onTimeDeliveryRate": 94.8,
+    "regionalPerformance": {
+      "northwest": { "avgTransportationTime": 4.3 },
+      "midwest": { "avgTransportationTime": 3.6 },
+      "south": { "avgTransportationTime": 3.8 },
+      "northeast": { "avgTransportationTime": 3.8 }
+    },
+    "openExceptions": {
+      "lateShipments": 329,
+      "damagedPackages": 85,
+      "customsHolds": 47
+    }
   },
   {
     "month": "2025-08",
-    "revenue": 59320,
-    "visitors": 28100,
-    "conversions": 3.2,
-    "orders": 865
+    "costPerShipment": 180.2,
+    "averageTransitTime": 3.9,
+    "orderToDeliveryTime": 5.3,
+    "shipmentVolume": 13490,
+    "onTimeDeliveryRate": 94.1,
+    "regionalPerformance": {
+      "northwest": { "avgTransportationTime": 4.4 },
+      "midwest": { "avgTransportationTime": 3.7 },
+      "south": { "avgTransportationTime": 4.0 },
+      "northeast": { "avgTransportationTime": 3.9 }
+    },
+    "openExceptions": {
+      "lateShipments": 348,
+      "damagedPackages": 92,
+      "customsHolds": 50
+    }
   },
   {
     "month": "2025-09",
-    "revenue": 62950,
-    "visitors": 25800,
-    "conversions": 3.7,
-    "orders": 955
+    "costPerShipment": 182.7,
+    "averageTransitTime": 4.0,
+    "orderToDeliveryTime": 5.4,
+    "shipmentVolume": 13910,
+    "onTimeDeliveryRate": 93.8,
+    "regionalPerformance": {
+      "northwest": { "avgTransportationTime": 4.5 },
+      "midwest": { "avgTransportationTime": 3.8 },
+      "south": { "avgTransportationTime": 4.1 },
+      "northeast": { "avgTransportationTime": 4.0 }
+    },
+    "openExceptions": {
+      "lateShipments": 369,
+      "damagedPackages": 98,
+      "customsHolds": 52
+    }
   },
   {
     "month": "2025-10",
-    "revenue": 66740,
-    "visitors": 23600,
-    "conversions": 3.9,
-    "orders": 920
+    "costPerShipment": 186.1,
+    "averageTransitTime": 4.2,
+    "orderToDeliveryTime": 5.6,
+    "shipmentVolume": 14380,
+    "onTimeDeliveryRate": 93.1,
+    "regionalPerformance": {
+      "northwest": { "avgTransportationTime": 4.7 },
+      "midwest": { "avgTransportationTime": 3.9 },
+      "south": { "avgTransportationTime": 4.3 },
+      "northeast": { "avgTransportationTime": 4.2 }
+    },
+    "openExceptions": {
+      "lateShipments": 398,
+      "damagedPackages": 104,
+      "customsHolds": 56
+    }
   },
   {
     "month": "2025-11",
-    "revenue": 72480,
-    "visitors": 22900,
-    "conversions": 4.2,
-    "orders": 965
+    "costPerShipment": 191.3,
+    "averageTransitTime": 4.5,
+    "orderToDeliveryTime": 5.9,
+    "shipmentVolume": 14960,
+    "onTimeDeliveryRate": 92.4,
+    "regionalPerformance": {
+      "northwest": { "avgTransportationTime": 5.0 },
+      "midwest": { "avgTransportationTime": 4.1 },
+      "south": { "avgTransportationTime": 4.6 },
+      "northeast": { "avgTransportationTime": 4.5 }
+    },
+    "openExceptions": {
+      "lateShipments": 439,
+      "damagedPackages": 116,
+      "customsHolds": 61
+    }
   },
   {
     "month": "2025-12",
-    "revenue": 78120,
-    "visitors": 24150,
-    "conversions": 4.0,
-    "orders": 940
+    "costPerShipment": 196.8,
+    "averageTransitTime": 4.8,
+    "orderToDeliveryTime": 6.3,
+    "shipmentVolume": 15420,
+    "onTimeDeliveryRate": 91.6,
+    "regionalPerformance": {
+      "northwest": { "avgTransportationTime": 5.4 },
+      "midwest": { "avgTransportationTime": 4.4 },
+      "south": { "avgTransportationTime": 4.9 },
+      "northeast": { "avgTransportationTime": 4.7 }
+    },
+    "openExceptions": {
+      "lateShipments": 474,
+      "damagedPackages": 124,
+      "customsHolds": 67
+    }
   }
 ]
