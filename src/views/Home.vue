@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { Bar, Doughnut, Line } from 'vue-chartjs'
 import {
   ArcElement,
@@ -15,6 +15,7 @@ import {
 import { geoAlbersUsa, geoPath } from 'd3-geo'
 import { scaleLinear } from 'd3-scale'
 import { feature } from 'topojson-client'
+import { useDisplay } from 'vuetify'
 import metricsJson from '../data/metrics.json'
 import usStatesTopology from 'us-atlas/states-10m.json'
 
@@ -45,6 +46,11 @@ type MetricRow = {
 const metrics = metricsJson as MetricRow[]
 const selectedMonth = ref<string>('ALL')
 const hoveredStateId = ref<number | null>(null)
+const mobileMapPage = ref(1)
+const mobileMapPageSize = 5
+const mobileMapSortKey = ref<'state' | 'averageTransportationTime'>('state')
+const mobileMapSortOrder = ref<'asc' | 'desc'>('asc')
+const { mdAndDown } = useDisplay()
 
 const monthLabel = new Intl.DateTimeFormat('en-US', { month: 'short' })
 const currencyFmt = new Intl.NumberFormat('en-US', {
@@ -244,6 +250,22 @@ const onTimeSingle = computed(() => {
   }
 })
 
+const volumeSingle = computed(() => {
+  if (!selectedEntry.value) {
+    return null
+  }
+
+  const previous = previousMonthRow(selectedEntry.value.month)
+  const delta = previous
+    ? ((selectedEntry.value.shipmentVolume - previous.shipmentVolume) / previous.shipmentVolume) * 100
+    : null
+
+  return {
+    value: selectedEntry.value.shipmentVolume,
+    delta,
+  }
+})
+
 const exceptionTotals = computed<Record<ExceptionKey, number>>(() => {
   if (selectedEntry.value) {
     return selectedEntry.value.openExceptions
@@ -255,6 +277,12 @@ const exceptionTotals = computed<Record<ExceptionKey, number>>(() => {
     customsHolds: metrics.reduce((sum, item) => sum + item.openExceptions.customsHolds, 0),
   }
 })
+
+const exceptionTargets: Record<ExceptionKey, number> = {
+  lateShipments: 4000,
+  damagedPackages: 1000,
+  customsHolds: 700,
+}
 
 const exceptionBreakdown = computed(() => {
   const rows = [
@@ -350,6 +378,60 @@ const stateAbbrById: Record<number, string> = {
   56: 'WY',
 }
 
+const stateNameById: Record<number, string> = {
+  1: 'Alabama',
+  2: 'Alaska',
+  4: 'Arizona',
+  5: 'Arkansas',
+  6: 'California',
+  8: 'Colorado',
+  9: 'Connecticut',
+  10: 'Delaware',
+  11: 'District of Columbia',
+  12: 'Florida',
+  13: 'Georgia',
+  15: 'Hawaii',
+  16: 'Idaho',
+  17: 'Illinois',
+  18: 'Indiana',
+  19: 'Iowa',
+  20: 'Kansas',
+  21: 'Kentucky',
+  22: 'Louisiana',
+  23: 'Maine',
+  24: 'Maryland',
+  25: 'Massachusetts',
+  26: 'Michigan',
+  27: 'Minnesota',
+  28: 'Mississippi',
+  29: 'Missouri',
+  30: 'Montana',
+  31: 'Nebraska',
+  32: 'Nevada',
+  33: 'New Hampshire',
+  34: 'New Jersey',
+  35: 'New Mexico',
+  36: 'New York',
+  37: 'North Carolina',
+  38: 'North Dakota',
+  39: 'Ohio',
+  40: 'Oklahoma',
+  41: 'Oregon',
+  42: 'Pennsylvania',
+  44: 'Rhode Island',
+  45: 'South Carolina',
+  46: 'South Dakota',
+  47: 'Tennessee',
+  48: 'Texas',
+  49: 'Utah',
+  50: 'Vermont',
+  51: 'Virginia',
+  53: 'Washington',
+  54: 'West Virginia',
+  55: 'Wisconsin',
+  56: 'Wyoming',
+}
+
 const stateIds = Object.keys(stateAbbrById).map(Number)
 const longHaulStateIds = new Set<number>([2, 15, 30, 38, 46, 56, 16, 32, 35, 49])
 const denseTrafficStateIds = new Set<number>([6, 12, 36, 48, 17, 25, 34, 42])
@@ -393,6 +475,7 @@ const transportationTimeRange = computed(() => {
   return {
     min: Math.min(...values),
     max: Math.max(...values),
+    avg: values.reduce((sum, value) => sum + value, 0) / values.length,
   }
 })
 
@@ -440,23 +523,99 @@ const hoveredStateInfo = computed(() => {
     return null
   }
   return {
-    state: stateAbbrById[hoveredStateId.value] ?? `State ${hoveredStateId.value}`,
+    state: stateNameById[hoveredStateId.value] ?? stateAbbrById[hoveredStateId.value] ?? `State ${hoveredStateId.value}`,
     metric: stateMetricText(hoveredStateId.value),
   }
 })
 
+const mobileStateRows = computed(() => {
+  return stateIds
+    .map((stateId) => {
+      const value = stateTransportationTimes.value[stateId]
+      const deltaFromAvg = value - transportationTimeRange.value.avg
+      return {
+        stateId,
+        state: stateNameById[stateId] ?? stateAbbrById[stateId] ?? `State ${stateId}`,
+        averageTransportationTime: value,
+        relativeLabel:
+          deltaFromAvg > 0.12
+            ? 'Slower than avg'
+            : deltaFromAvg < -0.12
+              ? 'Faster than avg'
+              : 'Near avg',
+      }
+    })
+})
+
+const mobileMapSortedRows = computed(() => {
+  const rows = [...mobileStateRows.value]
+  rows.sort((left, right) => {
+    const direction = mobileMapSortOrder.value === 'asc' ? 1 : -1
+    if (mobileMapSortKey.value === 'state') {
+      return left.state.localeCompare(right.state) * direction
+    }
+
+    if (left.averageTransportationTime !== right.averageTransportationTime) {
+      return (left.averageTransportationTime - right.averageTransportationTime) * direction
+    }
+
+    return left.state.localeCompare(right.state) * direction
+  })
+  return rows
+})
+
+const mobileMapPageCount = computed(() =>
+  Math.ceil(mobileMapSortedRows.value.length / mobileMapPageSize),
+)
+
+const mobileMapVisibleRows = computed(() => {
+  const start = (mobileMapPage.value - 1) * mobileMapPageSize
+  return mobileMapSortedRows.value.slice(start, start + mobileMapPageSize)
+})
+
+function toggleMobileMapSort(key: 'state' | 'averageTransportationTime'): void {
+  if (mobileMapSortKey.value === key) {
+    mobileMapSortOrder.value = mobileMapSortOrder.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    mobileMapSortKey.value = key
+    mobileMapSortOrder.value = 'asc'
+  }
+}
+
+function mobileSortIcon(key: 'state' | 'averageTransportationTime'): string {
+  if (mobileMapSortKey.value !== key) {
+    return 'mdi-swap-vertical'
+  }
+  return mobileMapSortOrder.value === 'asc' ? 'mdi-arrow-up' : 'mdi-arrow-down'
+}
+
+watch([selectedMonth, mdAndDown, mobileMapSortKey, mobileMapSortOrder], () => {
+  mobileMapPage.value = 1
+})
+
 const exceptionRows = computed(() => {
   const rows = [
-    { type: 'Late Shipments', amount: exceptionTotals.value.lateShipments },
-    { type: 'Damaged Packages', amount: exceptionTotals.value.damagedPackages },
-    { type: 'Customs Holds', amount: exceptionTotals.value.customsHolds },
+    {
+      type: 'Late Shipments',
+      target: exceptionTargets.lateShipments,
+      amount: exceptionTotals.value.lateShipments,
+    },
+    {
+      type: 'Damaged Packages',
+      target: exceptionTargets.damagedPackages,
+      amount: exceptionTotals.value.damagedPackages,
+    },
+    {
+      type: 'Customs Holds',
+      target: exceptionTargets.customsHolds,
+      amount: exceptionTotals.value.customsHolds,
+    },
   ]
 
-  const max = Math.max(...rows.map((row) => row.amount))
-  return rows.map((row): { type: string; amount: number; severity: 'high' | 'medium' | 'low' } => ({
+  return rows.map((row): { type: string; target: number; amount: number; severity: 'high' | 'medium' | 'low' } => ({
     ...row,
     severity:
-      row.amount >= max * 0.85 ? 'high' : row.amount >= max * 0.55 ? 'medium' : 'low',
+      row.amount >= row.target ? 'high' : row.amount >= row.target * 0.75 ? 'medium' : 'low',
   }))
 })
 
@@ -531,21 +690,31 @@ function severityClass(severity: 'high' | 'medium' | 'low'): string {
 
         <v-row class="section-row">
           <v-col cols="12" lg="6" class="section-col">
-            <v-card class="panel-card" rounded="xl">
+            <v-card class="panel-card" :class="{ 'month-panel-card': selectedMonth !== 'ALL' }" rounded="xl">
               <v-card-item class="panel-head">
                 <v-card-title class="metric-title">Shipment Volume</v-card-title>
               </v-card-item>
               <v-card-subtitle>
-                {{ selectedMonth === 'ALL' ? 'Monthly total shipments' : 'Selected month volume' }}
+                {{ selectedMonth === 'ALL' ? 'Monthly total shipments' : 'Selected month with MoM delta' }}
               </v-card-subtitle>
-              <v-card-text class="chart-wrap">
+              <v-card-text class="chart-wrap" v-if="selectedMonth === 'ALL'">
                 <Bar :data="volumeChartData" :options="chartOptions" />
+              </v-card-text>
+              <v-card-text v-else class="single-metric-wrap">
+                <div class="single-rate">
+                  {{ numberFmt.format(volumeSingle?.value ?? 0) }}
+                  <span class="single-rate-unit">shipments</span>
+                </div>
+                <div class="single-delta" :class="`text-${deltaColor(volumeSingle?.delta ?? null)}`">
+                  <v-icon :icon="deltaIcon(volumeSingle?.delta ?? null)" size="16" class="me-1" />
+                  {{ deltaText(volumeSingle?.delta ?? null) }}
+                </div>
               </v-card-text>
             </v-card>
           </v-col>
 
           <v-col cols="12" lg="6" class="section-col">
-            <v-card class="panel-card" rounded="xl">
+            <v-card class="panel-card" :class="{ 'month-panel-card': selectedMonth !== 'ALL' }" rounded="xl">
               <v-card-item class="panel-head">
                 <v-card-title class="metric-title">On-Time Delivery Rate</v-card-title>
               </v-card-item>
@@ -575,7 +744,7 @@ function severityClass(severity: 'high' | 'medium' | 'low'): string {
               <v-card-subtitle>
                 Darker states indicate slower average transportation time
               </v-card-subtitle>
-              <v-card-text>
+              <v-card-text v-if="!mdAndDown">
                 <div class="map-wrap">
                   <svg viewBox="0 0 1000 700" class="regional-map" role="img" aria-label="US transportation performance map">
                     <path
@@ -584,6 +753,7 @@ function severityClass(severity: 'high' | 'medium' | 'low'): string {
                       :d="state.d"
                       :fill="stateFill(state.id)"
                       class="region-shape"
+                      :class="{ 'active-state': hoveredStateId === state.id }"
                       @mouseenter="hoveredStateId = state.id"
                       @mouseleave="hoveredStateId = null"
                     />
@@ -601,6 +771,45 @@ function severityClass(severity: 'high' | 'medium' | 'low'): string {
                     <span class="map-scale-value">{{ transportationTimeRange.min.toFixed(1) }} days</span>
                     <span class="map-scale-label">Faster</span>
                   </div>
+                </div>
+              </v-card-text>
+              <v-card-text v-else class="mobile-map-table-wrap">
+                <div class="mobile-map-table-shell">
+                  <v-table class="mobile-map-table">
+                    <thead>
+                      <tr>
+                        <th>
+                          <button class="mobile-sort-button" type="button" @click="toggleMobileMapSort('state')">
+                            <span>State</span>
+                            <v-icon :icon="mobileSortIcon('state')" size="14" />
+                          </button>
+                        </th>
+                        <th>
+                          <button class="mobile-sort-button" type="button" @click="toggleMobileMapSort('averageTransportationTime')">
+                            <span>Average Transportation Time</span>
+                            <v-icon :icon="mobileSortIcon('averageTransportationTime')" size="14" />
+                          </button>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="row in mobileMapVisibleRows" :key="row.stateId">
+                        <td>{{ row.state }}</td>
+                        <td>
+                            <div class="mobile-map-metric">{{ row.averageTransportationTime.toFixed(1) }} days</div>
+                          <div class="mobile-map-relative">{{ row.relativeLabel }}</div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </v-table>
+                </div>
+                <div class="mobile-map-pagination">
+                  <v-pagination
+                    v-model="mobileMapPage"
+                    :length="mobileMapPageCount"
+                    :total-visible="5"
+                    density="comfortable"
+                  />
                 </div>
               </v-card-text>
             </v-card>
@@ -641,12 +850,14 @@ function severityClass(severity: 'high' | 'medium' | 'low'): string {
                     <thead>
                       <tr>
                         <th>Exception Type</th>
+                        <th class="text-right">Target</th>
                         <th class="text-right">Amount</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr v-for="row in exceptionRows" :key="row.type">
                         <td>{{ row.type }}</td>
+                        <td class="text-right">{{ numberFmt.format(row.target) }}</td>
                         <td class="text-right">
                           <span class="severity-pill" :class="severityClass(row.severity)">
                             {{ numberFmt.format(row.amount) }}
@@ -801,18 +1012,37 @@ function severityClass(severity: 'high' | 'medium' | 'low'): string {
 }
 
 .single-metric-wrap {
-  min-height: 300px;
+  min-height: 168px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  gap: 10px;
+  padding-top: 0;
+  padding-bottom: 0;
+  gap: 8px;
+}
+
+.month-panel-card :deep(.v-card-text.single-metric-wrap) {
+  padding-bottom: 0;
+}
+
+.month-panel-card {
+  min-height: 0;
 }
 
 .single-rate {
-  font-size: 3rem;
+  font-size: 2.6rem;
   font-weight: 700;
   line-height: 1;
+}
+
+.single-rate-unit {
+  margin-left: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #9bb2d1;
 }
 
 .map-wrap {
@@ -847,13 +1077,19 @@ function severityClass(severity: 'high' | 'medium' | 'low'): string {
 .region-shape {
   stroke: rgba(226, 238, 255, 0.48);
   stroke-width: 0.8;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: fill 0.14s ease, stroke 0.14s ease, stroke-width 0.14s ease, opacity 0.14s ease;
   cursor: pointer;
 }
 
 .region-shape:hover {
   opacity: 0.92;
-  transform: translateY(-1px);
+}
+
+.region-shape.active-state {
+  fill: #dce9ff !important;
+  stroke: rgba(255, 255, 255, 0.95);
+  stroke-width: 1.4;
+  opacity: 1;
 }
 
 .map-tooltip {
@@ -864,6 +1100,7 @@ function severityClass(severity: 'high' | 'medium' | 'low'): string {
   border: 1px solid rgba(142, 165, 196, 0.3);
   border-radius: 10px;
   padding: 10px 12px;
+  pointer-events: none;
 }
 
 .tooltip-title {
@@ -921,10 +1158,13 @@ function severityClass(severity: 'high' | 'medium' | 'low'): string {
   grid-template-columns: minmax(140px, 1fr) minmax(150px, 1fr);
   gap: 14px;
   align-items: center;
+  justify-items: center;
 }
 
 .donut-wrap {
+  width: 170px;
   height: 170px;
+  justify-self: center;
 }
 
 .donut-legend {
@@ -963,6 +1203,67 @@ function severityClass(severity: 'high' | 'medium' | 'low'): string {
 
 .exceptions-table-wrap {
   padding: 0 20px 20px;
+}
+
+.mobile-map-table-wrap {
+  padding: 0 20px 20px;
+  display: flex;
+  flex-direction: column;
+  min-height: min(70vh, 640px);
+}
+
+.mobile-map-table-shell {
+  flex: 1;
+}
+
+.mobile-map-table {
+  background: transparent;
+}
+
+.mobile-sort-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.mobile-map-table :deep(th),
+.mobile-map-table :deep(td) {
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+.mobile-map-table :deep(th:first-child),
+.mobile-map-table :deep(td:first-child) {
+  padding-left: 0;
+}
+
+.mobile-map-table :deep(th:last-child),
+.mobile-map-table :deep(td:last-child) {
+  padding-right: 0;
+}
+
+.mobile-map-metric {
+  color: #e7f0ff;
+  font-weight: 600;
+}
+
+.mobile-map-relative {
+  color: #91a7c7;
+  font-size: 0.82rem;
+  margin-top: 2px;
+}
+
+.mobile-map-pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+  padding-top: 12px;
 }
 
 .exceptions-table :deep(th),
@@ -1013,6 +1314,12 @@ function severityClass(severity: 'high' | 'medium' | 'low'): string {
     font-size: 2.4rem;
   }
 
+  .single-rate-unit {
+    display: block;
+    margin-top: 8px;
+    margin-left: 0;
+  }
+
   .map-scale-vertical {
     gap: 6px;
   }
@@ -1031,6 +1338,11 @@ function severityClass(severity: 'high' | 'medium' | 'low'): string {
 
   .donut-wrap {
     height: 150px;
+  }
+
+  .mobile-map-table-wrap {
+    padding-bottom: 16px;
+    min-height: min(65vh, 560px);
   }
 }
 

@@ -25,14 +25,14 @@ Generate a fake dataset as a JSON file (src/data/metrics.json)
     - Left: Bar chart showing average shipment volume (For individual months, show the single volume metric with a smaller month-to-month delta; style like the summary cards)
     - Right: Line chart showing on-time delivery rates (for all, show a line chart of the last 12 months. For individual months, show a single percentage with a smaller month-to-month delta; style like the summary cards)
 - Below , a row of 2 charts: 
-    - left: one choropleth-style regional map of the US based on average transportation time, with hover states over each state showing its name and metric
-- Right: 
-    - Top: Donut chart with percentage breakdown of exceptions
-    - Bottom: one table for open exceptions with three columns:
-        - Exception type
-        - Target
-        - Amount
-        - Use color coding for high amounts relative to a target
+    - left: one choropleth-style regional map of the US based on average transportation time, with hover states over each state showing its name and metric. On mobile, this should convert to a data table with each state and its relative transportation time listed. Paginate so only 5 states show at a time
+    - Right: 
+        - Top: Donut chart with percentage breakdown of exceptions
+        - Bottom: one table for open exceptions with three columns:
+            - Exception type
+            - Target
+            - Amount
+            - Use color coding for high amounts relative to a target
 - Use v-container, v-row, v-col for responsive grid layout
 
 ## Interactions
